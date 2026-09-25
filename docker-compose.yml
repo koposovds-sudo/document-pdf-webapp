@@ -1,0 +1,15 @@
+services:
+  converter:
+    build: .
+    container_name: document-pdf-webapp
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - TZ=Europe/Moscow
+    tmpfs:
+      - /tmp:size=1g,mode=1777
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
