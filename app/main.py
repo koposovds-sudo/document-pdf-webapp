@@ -24,22 +24,22 @@ WORK_DIR = Path(tempfile.gettempdir()) / "document_pdf_webapp"
 WORK_DIR.mkdir(parents=True, exist_ok=True)
 MAX_FILE_SIZE = 50 * 1024 * 1024
 MAX_FILES = 20
-ALLOWED_EXTENSIONS = {".doc", ".docx", ".xls", ".xlsx", ".jpg", ".jpeg"}
+ALLOWED_EXTENSIONS = {".doc", ".docx", ".xls", ".xlsx", ".jpg", ".jpeg", ".png"}
 OFFICE_EXTENSIONS = {".doc", ".docx", ".xls", ".xlsx"}
-IMAGE_EXTENSIONS = {".jpg", ".jpeg"}
+IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png"}
 
 
 def remove_job(directory: Path) -> None:
     shutil.rmtree(directory, ignore_errors=True)
 
 
-def safe_name(filename: str, index: int) -> tuple[str, str]:
+def safe_name(filename: str, index: int) -> tuple[str, str, str]:
     basename = Path(filename).name
     suffix = Path(basename).suffix.lower()
     stem = Path(basename).stem[:100] or "file"
     if suffix not in ALLOWED_EXTENSIONS:
         raise HTTPException(400, f"Формат файла «{basename}» не поддерживается.")
-    return f"{index:03d}_{stem}{suffix}", suffix
+    return f"{index:03d}_{stem}{suffix}", suffix, stem
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -64,9 +64,9 @@ async def convert(
     output_dir.mkdir()
 
     try:
-        uploaded: list[tuple[Path, str, int]] = []
+        uploaded: list[tuple[Path, str, str, int]] = []
         for index, upload in enumerate(files):
-            filename, suffix = safe_name(upload.filename or "", index)
+            filename, suffix, original_stem = safe_name(upload.filename or "", index)
             destination = input_dir / filename
             size = 0
             with destination.open("wb") as buffer:
@@ -76,19 +76,20 @@ async def convert(
                         raise HTTPException(413, f"Файл «{upload.filename}» превышает 50 МБ.")
                     buffer.write(chunk)
             await upload.close()
-            uploaded.append((destination, suffix, index))
+            uploaded.append((destination, suffix, original_stem, index))
 
         document_pdfs: dict[int, Path] = {}
-        images: list[tuple[Path, int]] = []
-        for source, suffix, index in uploaded:
+        images: list[tuple[Path, str, int]] = []
+        for source, suffix, original_stem, index in uploaded:
             if suffix in OFFICE_EXTENSIONS:
                 document_pdfs[index] = convert_office_to_pdf(source, output_dir)
             elif suffix in IMAGE_EXTENSIONS:
-                images.append((source, index))
+                images.append((source, original_stem, index))
 
         if images:
-            image_pdf = images_to_pdf([source for source, _ in images], output_dir / "images.pdf")
-            document_pdfs[images[0][1]] = image_pdf
+            image_name = f"{images[0][1]}.pdf" if len(images) == 1 else "images.pdf"
+            image_pdf = images_to_pdf([source for source, _, _ in images], output_dir / image_name)
+            document_pdfs[images[0][2]] = image_pdf
 
         pdfs = [document_pdfs[index] for index in sorted(document_pdfs)]
         if not pdfs:

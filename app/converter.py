@@ -34,13 +34,13 @@ def images_to_pdf(images: list[Path], output_path: Path) -> Path:
             with Image.open(image_path) as image:
                 pages.append(ImageOps.exif_transpose(image).convert("RGB").copy())
         if not pages:
-            raise HTTPException(422, "Не найдены JPEG-изображения для конвертации.")
+            raise HTTPException(422, "Не найдены изображения для конвертации.")
         pages[0].save(output_path, "PDF", save_all=True, append_images=pages[1:], resolution=150.0)
         return output_path
     except HTTPException:
         raise
     except Exception as exc:
-        raise HTTPException(422, f"Не удалось обработать JPEG: {exc}") from exc
+        raise HTTPException(422, f"Не удалось обработать изображение: {exc}") from exc
     finally:
         for page in pages:
             page.close()

@@ -10,18 +10,18 @@
   <main class="card">
     <span class="badge">Без аккаунта · файлы удаляются после обработки</span>
     <h1>Конвертер документов в PDF</h1>
-    <p class="intro">Загрузите Word, Excel или JPEG. Максимум 20 файлов и 50 МБ на файл.</p>
+    <p class="intro">Загрузите Word, Excel, JPEG или PNG. Максимум 20 файлов и 50 МБ на файл.</p>
     <form id="converter-form">
       <label class="dropzone" for="files">
-        <input id="files" name="files" type="file" multiple required accept=".doc,.docx,.xls,.xlsx,.jpg,.jpeg">
+        <input id="files" name="files" type="file" multiple required accept=".doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png">
         <span class="dropzone-title">Выберите или перетащите файлы</span>
-        <span class="dropzone-help">DOC, DOCX, XLS, XLSX, JPG, JPEG</span>
+        <span class="dropzone-help">DOC, DOCX, XLS, XLSX, JPG, JPEG, PNG</span>
       </label>
       <div id="selected-files" class="selected-files" aria-live="polite"></div>
       <fieldset>
         <legend>Как отдать результат?</legend>
-        <label class="choice"><input type="radio" name="output_mode" value="separate" checked><span><strong>Отдельные PDF</strong><small>Несколько результатов будут скачаны ZIP-архивом.</small></span></label>
-        <label class="choice"><input type="radio" name="output_mode" value="merged"><span><strong>Объединить всё в один PDF</strong><small>Документы попадут в итоговый файл в порядке загрузки. Все JPEG станут одним многостраничным блоком.</small></span></label>
+        <label class="choice"><input type="radio" name="output_mode" value="separate" checked><span><strong>Отдельные PDF</strong><small>Один файл сохранит исходное имя с расширением PDF. Несколько результатов будут скачаны ZIP-архивом.</small></span></label>
+        <label class="choice"><input type="radio" name="output_mode" value="merged"><span><strong>Объединить всё в один PDF</strong><small>Документы попадут в итоговый файл в порядке загрузки. Все изображения станут одним многостраничным блоком.</small></span></label>
       </fieldset>
       <button id="submit-button" type="submit">Конвертировать</button>
       <p id="status" class="status" role="status"></p>
