@@ -8,10 +8,10 @@ from pathlib import Path
 from typing import Literal
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
-from fastapi.background import BackgroundTask
 from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from starlette.background import BackgroundTask
 from starlette.requests import Request
 
 from .converter import convert_office_to_pdf, images_to_pdf, merge_pdfs
